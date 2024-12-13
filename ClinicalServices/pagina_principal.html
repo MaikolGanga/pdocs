@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Principal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<style>
+    body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f1f0f6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    }
+
+    .header {
+    background-color: #ffffff;
+    color: #333;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    }
+
+    /* Estilo del Sidebar */
+    .sidebar {
+    width: 230px; /* Ancho del sidebar */
+    height: 100%;
+    background-color: white;
+    color: #333;
+    position: fixed;
+    top: 80px; /* Posiciona el sidebar debajo del header */
+    left: -230px; /* Está fuera de la pantalla por defecto */
+    z-index: 1000;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease; /* Transición suave */
+    bottom: 0;
+    }
+
+    .sidebar.open {
+    left: 0; /* Mueve el sidebar a la izquierda cuando se abre */
+    }
+
+    /* Estilo del contenedor principal */
+    .main-content {
+    flex-grow: 1;
+    padding: 0;
+    height: calc(100vh - 65px); /* El contenido ocupa toda la altura disponible */
+    overflow: hidden;
+    transition: margin-left 0.3s ease; /* Transición suave para el desplazamiento */
+    margin-left: 0; /* El contenido está en su lugar por defecto */
+    }
+
+    /* Cuando el sidebar está abierto, el contenido principal se mueve 230px hacia la derecha */
+    .main-content.sidebar-open {
+    margin-left: -230px;
+    }
+
+    .main-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    }
+
+    /* ______________________________________________________________________________________________*/
+
+        /* Barra superior */
+
+
+    /* Estilo para el botón de menú */
+    .menu-btn {
+    background: none;
+    border: none;
+    color: #333; /* Color oscuro para el icono */
+    font-size: 30px;
+    cursor: pointer;
+    display: block; /* Aseguramos que el botón esté visible */
+    margin-right: 15px; /* Espacio entre el icono y el logo */
+    }
+
+    /* Aseguramos que el icono de la hamburguesa se vea bien */
+    .menu-btn i {
+    font-size: 30px; /* Tamaño del icono */
+    }
+
+    /* Estilo para el icono del usuario dentro de un círculo */
+    .user-icon {
+    width: 40px; /* Ancho del círculo */
+    height: 40px; /* Alto del círculo */
+    background-color: #007bff; /* Color de fondo azul */
+    color: white; /* Color del icono (blanco) */
+    display: flex;
+    justify-content: center; /* Centramos el icono horizontalmente */
+    align-items: center; /* Centramos el icono verticalmente */
+    border-radius: 50%; /* Hace el fondo circular */
+    font-size: 18px; /* Tamaño del icono */
+    margin-right: 10px; /* Espacio entre el icono y el nombre del usuario */
+    cursor: pointer; /* Indicamos que es clickeable */
+    }
+
+    /* Menú desplegable de usuario */
+    .user-menu {
+    display: none; /* El menú está oculto por defecto */
+    position: absolute;
+    top: 50px; /* Desplazamos el menú hacia abajo desde el ícono */
+    left: 100px; /* Alinea el menú a la izquierda con el icono */
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1001; /* Aseguramos que el menú esté por encima del menú lateral */
+    width: 200px;
+    border-radius: 5px;
+    }
+
+    /* Estilo para la lista dentro del menú */
+    .user-menu ul {
+    list-style: none;
+    padding: 5px 5px;
+    margin: 0;
+    border-radius: 5px;
+    }
+
+    /* Estilo para los elementos del menú */
+    .user-menu ul li {
+    padding: 10px 15px; /* Aumentamos el padding de los elementos */
+    cursor: pointer; /* Hacemos que los elementos sean clickeables */
+    transition: background-color 0.3s ease; /* Añadimos transición para el hover */
+    border-radius: 10px;
+    }
+
+    /* Estilo para los enlaces dentro del menú */
+    .user-menu ul li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    font-size: 16px;
+    height: 100%; /* Aseguramos que el enlace ocupe todo el espacio del li */
+    line-height: 20px; /* Hacemos que el texto se alinee verticalmente */
+    }
+
+    /* Estilo hover para los elementos del menú */
+    .user-menu ul li:hover {
+    background-color: #f1f1f1; /* Fondo gris claro al pasar el cursor */
+    }
+
+    /* Estilo para los enlaces del menú */
+    .user-menu ul li a:hover {
+    background-color: #f1f1f1; /* Fondo gris claro al pasar el cursor */
+    }
+
+    /* Estilo para el nombre del usuario */
+    .user-name {
+    font-size: 16px;
+    color: #333; /* Color del texto */
+    font-weight: bold; /* Resalta el nombre con negritas */
+    margin-right: 20px; /* Espacio entre el nombre del usuario y la fecha */
+    }
+
+    /* Estilo para el logo */
+    .logo {
+    font-size: 24px;
+    font-weight: bold; /* Resalta el logo con negritas */
+    flex-grow: 1; /* Asegura que el logo ocupe todo el espacio disponible */
+    text-align: center; /* Centra el logo */
+    display: flex; /* Usamos flexbox para alinear la imagen y el texto */
+    align-items: center; /* Alineamos verticalmente la imagen y el texto */
+    justify-content: center; /* Alineamos horizontalmente (en el centro) */
+    color: #007bff;
+    }
+
+    /* Estilo para la imagen dentro del logo */
+    .logo-img {
+    width: 30px; /* Ajusta el tamaño de la imagen */
+    height: 30px; /* Asegura que la imagen sea cuadrada */
+    margin-right: 10px; /* Espacio entre la imagen y el texto */
+    }
+
+    /* Estilo para la fecha */
+    .date {
+    font-size: 16px; /* Tamaño de la fuente */
+    color: #333; /* Color oscuro para el texto */
+    margin-right: 15px; /* Espacio entre la fecha y el botón de salir */
+    }
+
+    /* Estilo para el botón de "Salir" */
+    .logout-btn {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    }
+
+    /* Estilo para el icono del botón de "Salir" */
+    .logout-btn i {
+    margin-right: 8px; /* Espacio entre el icono y el texto */
+    }
+
+    /* Estilo hover para el botón "Salir" */
+    .logout-btn:hover {
+    color: #007bff; /* Color rojo al pasar el mouse */
+    }
+
+    /* Rotación de 90 grados hacia la izquierda */
+    .rotate-90 {
+    transform: rotate(-90deg) ; /* Rotación hacia la izquierda y desplazamiento a la derecha */
+    transition: transform 0.3s ease; /* Transición suave para la rotación y el desplazamiento */
+    }
+
+
+    /* Aseguramos que el icono de hamburguesa se vea en pantallas pequeñas */
+    @media (max-width: 768px) {
+    .menu-btn {
+        display: block; /* Mostramos el botón de menú en pantallas pequeñas */
+    }
+    }
+
+    /* ______________________________________________________________________________________________*/
+
+    /* Sidebar Header */
+    .sidebar-header {
+    padding: 5px 15px;
+    background-color: #ffffff;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    }
+
+
+    .sidebar-header ul {
+    list-style-type: none;
+    padding: 0;
+    }
+
+    .sidebar-header li {
+    margin: 15px 0;
+    }
+
+    .sidebar-header a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    }
+
+    .sidebar-header a i {
+    margin-right: 5px;
+    color: #4CAF50;
+    font-size: 22px;
+    padding: 8px;
+    border: 3px solid #4CAF50;
+
+    border-radius: 50%;
+    }
+
+    .sidebar-header a:hover {
+    background-color: #d8d8d8;
+    border-radius: 10px;
+    }
+
+    /* ______________________________________________________________________________________________*/
+
+    /* Estilos para el contenedor principal (menú principal) */
+    .contenedor-principal {
+    margin-top: -30px; 
+    }
+
+    .contenedor-principal ul {
+    padding: 0;
+    list-style-type: none;
+    }
+
+    .contenedor-principal li {
+    position: relative;
+    }
+
+    .contenedor-principal li a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    }
+
+    .contenedor-principal li a i {
+    margin-right: 10px;
+    }
+
+    .contenedor-principal li a:hover {
+    background-color: #eeeeee;
+    border-radius: 5px;
+    }
+
+    .contenedor-principal li a .fa-check-circle {
+    margin-left: 10px;
+    }
+    
+    /* ______________________________________________________________________________________________*/
+
+    /* Estilos para las secciones (contenedor-seccion) */
+    .contenedor-seccion {
+    display: none;
+    padding: 10px;
+    margin-top: -30px; 
+    }
+
+    .contenedor-seccion.active {
+    display: block;
+    }
+
+    .contenedor-seccion h3 {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 10px;
+    }
+
+    .contenedor-seccion ul {
+    list-style-type: none;
+    padding-left: 20px;
+    }
+
+    .contenedor-seccion ul li {
+    margin: 20px 0;
+    }
+
+    .contenedor-seccion ul li a {
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease, padding 0.3s ease;
+    }
+
+    .contenedor-seccion ul li a:hover {
+    color: #333;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    }
+
+    /* ______________________________________________________________________________________________*/
+
+    /* Estilos para los submenús */
+    .submenu {
+        display: none;
+        padding-left: 15px; /* Reducir el espacio izquierdo */
+        list-style-type: none;
+    }
+    
+    .submenu li a {
+        padding: 2px 6px; /* Reducir aún más el padding vertical y horizontal */
+        color: #666;
+        font-size: 13px; /* Reducir el tamaño de fuente si es necesario */
+    }
+    
+    .submenu li a:hover {
+        background-color: #16a085;
+        color: white;
+        border-radius: 10px;
+    }
+    
+    .submenu.open {
+        display: block;
+    }
+    
+    /* Estilos adicionales para el submenú */
+    .submenu {
+        list-style-type: none;
+        background-color: white;
+        display: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        left: 15px;
+        width: 150px;
+    }
+    
+    .submenu li {
+        padding: 0px; /* Eliminar casi todo el padding vertical entre los elementos */
+        font-size: 13px; /* Reducir el tamaño de fuente si se desea más compacto */
+        display: flex;
+        align-items: center;
+    }
+    
+    .submenu li a {
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 2px 6px; /* Reducir el padding dentro de los enlaces */
+    }
+    
+    .submenu li a:hover {
+        background-color: #ececec;
+        border-radius: 10px;
+    }
+    
+    .submenu li i {
+        font-size: 14px; /* Reducir el tamaño de los íconos */
+        margin-right: 10px; /* Reducir el espacio entre el ícono y el texto */
+        color: #333;
+    }
+    
+    /* Reducir aún más el espacio entre los elementos */
+    .submenu li + li {
+        margin-top: -20px; /* Reducir al mínimo el espacio entre los elementos */
+    }
+    
+    .rotated {
+        transform: rotate(90deg);
+    }
+
+    .logout-confirmation {
+        background-color: #fff; /* Fondo blanco */
+        color: #333; /* Texto gris oscuro para mejor contraste */
+        padding: 30px 50px; /* Ajuste de padding para un espaciado más moderado */
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 12px; /* Bordes ligeramente más redondeados */
+        display: flex;
+        flex-direction: column; /* Apilamos los elementos en columna */
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 1000; /* Asegura que el aviso esté sobre otros elementos */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
+    }
+
+    .logout-confirmation p {
+        font-size: 24px; /* Tamaño de fuente para el texto */
+        margin-bottom: 20px; /* Espacio entre el texto y los botones */
+    }
+
+    /* Botones comunes */
+    button {
+        padding: 10px 20px;
+        font-size: 12px;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    /* Botones específicos dentro del contenedor */
+    .logout-confirmation button {
+        margin: 0 10px; /* Espaciado horizontal entre los botones */
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    /* Estilo del botón "Sí" */
+    .yes-btn {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* Estilo del botón "No" */
+    .no-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    /* Aseguramos que los botones estén en fila */
+    .logout-confirmation .button-container {
+        display: flex; /* Cambiar a fila (horizontal) */
+        justify-content: center; /* Centrar los botones */
+        gap: 20px; /* Espaciado entre los botones */
+        margin-top: 20px; /* Espacio entre el texto y los botones */
+    }
+
+    .logout-confirmation i {
+        margin-bottom: 15px; /* Espacio entre el ícono y el texto */
+        font-size: 40px; /* Tamaño del ícono */
+        color: #f39c12; /* Color del ícono */
+    }
+
+</style>
+
+<body>
+
+    <header class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-ellipsis-h"></i>
+        </button>
+        
+        <div class="user-container"> 
+            <div class="user-icon" onclick="toggleUserMenu()">
+                <i class="fas fa-male"></i>
+            </div>
+        
+            <div id="user-menu" class="user-menu">
+                <ul>
+                    <li><a href="#">Perfil de Usuario</a></li>
+                    <li><a href="#">Cambiar Contraseña</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="user-name" onclick="toggleUserMenu()">
+            <span>Administrador</span>
+        </div>
+    
+        <div class="logo">
+            <img src="img/img-Css.png" alt="Logo" class="logo-img"> 
+            Clinical Services (Css)
+        </div>
+        
+        <div class="date" id="date"></div>
+    
+        <button class="logout-btn" onclick="showLogoutConfirmation()">
+            <i class="fas fa-sign-out-alt"></i> Salir
+        </button>
+    
+        <div id="logout-confirmation" class="logout-confirmation" style="display: none;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #f39c12;"></i>
+            <p>¿Deseas salir?</p>
+            <div class="button-container">
+                <button class="yes-btn" onclick="logout()">Sí</button>
+                <button class="no-btn" onclick="cancelLogout()">No</button>
+            </div>
+        </div>
+        
+    </header>
+    
+  <nav id="sidebar" class="sidebar open"> 
+    <div class="sidebar-header">
+        <ul>
+          <li>
+            <a href="javascript:void(0)" onclick="mostrarPaginaPrincipal()">
+              <i class="fas fa-home"></i> Página Principal
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+
+    <div class="contenedor-principal">
+      <ul>
+        <li><a href="javascript:void(0)" onclick="showSection('implantes')"><i class="fas fa-briefcase-medical"></i> Implantes <i class="fas fa-check-circle"style="color: #4CAF50;"></i></a></li>
+        <li><a href="javascript:void(0)" onclick="showSection('consignacion')"><i class="fas fa-box"></i> Consignación <i class="fas fa-check-circle"style="color: #4CAF50;"></i></a></li>
+        <li><a href="javascript:void(0)" onclick="showSection('administrativa')"><i class="fas fa-users"></i> Productos de aseo <i class="fas fa-check-circle"style="color: #4CAF50;"></i></a></li>
+        <li><a href="javascript:void(0)" onclick="showSection('prestaciones')"><i class="fas fa-clipboard-list"></i> Prestaciones <i class="fas fa-check-circle"style="color: #4CAF50;"></i></a></li>
+        <li><a href="javascript:void(0)" onclick="showSection('gestion')"><i class="fas fa-sliders-h"></i> Gestión Accesos <i class="fas fa-check-circle"style="color: #4CAF50;"></i></a></li>
+      </ul>
+    </div>
+    
+    <div id="implantes" class="contenedor-seccion"> 
+      <h3><span style="color: #333;">Implantes</span> <i class="fas fa-check-circle" style="color: #4CAF50;"></i></h3>
+
+      <ul>
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-heartbeat"></i> Trauma <i class="fas fa-chevron-right"style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-cogs"></i> Consumos <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+
+
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-file-medical"></i> Cargos<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-folder"></i> Carpetas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-building"></i> Corporativo <i class="fas fa-chevron-right"style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+
+            <li><a href="#"><i class="fas fa-file-alt"></i> Planilla<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-file-invoice"></i> Facturas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-piggy-bank"></i> Provisiones<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-search"></i> Seguimiento<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-box"></i> Consignados <i class="fas fa-chevron-right"style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-plus-circle"></i> Ingreso<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-minus-circle"></i> Salidas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-clipboard"></i> Kardex<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Ajustes<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-cogs"></i> Cajas <i class="fas fa-chevron-right"style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-flask"></i> Uretero<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-vial"></i> Angio<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Fijadores<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-syringe"></i> A.K.<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-hand-holding-medical"></i> Pinzas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-bone"></i> Osteotrauma<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Synthes<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Promedon<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-tags"></i> Listado de precios <i class="fas fa-chevron-right"style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-cogs"></i> Synthes<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Arenys<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Arthrex<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Global<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> IMH<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Medtronic<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Promedon<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+      </ul>
+    </div>
+
+    <div id="consignacion" class="contenedor-seccion">
+
+      <h3><span style="color: #333;">Consignación</span> <i class="fas fa-check-circle" style="color: #4CAF50;"></i></h3>
+      <ul>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-file-alt"></i> Registros <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-credit-card"></i> Ingresos <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-clock"></i> Pendiente <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-clipboard-check"></i> Kardex <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-box"></i> Inventario <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+    </ul> 
+    </div>
+
+    <div id="administrativa" class="contenedor-seccion"> 
+      <h3><span style="color: #333;">Productos de aseo</span> <i class="fas fa-check-circle" style="color: #4CAF50;"></i></h3>
+      <ul>
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-broom"></i> Aseo <i class="fas fa-chevron-right" style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-sign-out-alt"></i> Salidas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-file-invoice"></i> Facturas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-cogs"></i> Ajustes<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-search"></i> Consultas <i class="fas fa-chevron-right" style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-file-alt"></i> Kardex<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-file-invoice"></i> Resumen<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-piggy-bank"></i> Actas<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>
+        
+        <li><a href="#" onclick="toggleSubmenu(this)"><i class="fas fa-tasks"></i> Procesos <i class="fas fa-chevron-right" style="color: #4CAF50;"></i></a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-code"></i> Códigos<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-truck"></i> Proveedores<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Unidades<i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+          </ul>
+        </li>        
+      </ul>
+    </div>
+    
+    <div id="prestaciones" class="contenedor-seccion">
+      <h3><span style="color: #333;">Préstaciones</span> <i class="fas fa-check-circle" style="color: #4CAF50;"></i></h3>
+      <ul>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-file-signature"></i> Códigos <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-users"></i> Pacientes <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-user-md"></i> Médicos <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-calendar-check"></i> Previsiones <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-truck"></i> Empresas <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-cogs"></i> Sistema MK <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="project-folder/Prestaciones/Contactos/m4-contactos.html"><i class="fas fa-phone"></i> Contactos <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+      </ul>
+    </div>
+
+    <div id="gestion" class="contenedor-seccion">
+      <h3><span style="color: #333;">Gestión de Accesos</span> <i class="fas fa-check-circle" style="color: #4CAF50;"></i></h3>
+      <ul>
+        <li><a href="#" class="formulario-link" data-target="project-folder/Gestion Accesos/m5-registros.html"><i class="fas fa-file-alt"></i> Registros <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="project-folder/Gestion Accesos/m5-usuarios.html"><i class="fas fa-user"></i> Usuarios <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+        <li><a href="#" class="formulario-link" data-target="ingresar formulario"><i class="fas fa-cogs"></i> Roles <i class="fas fa-caret-right" style="color: #4CAF50; margin-left: 8px;"></i></a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <main class="main-content" id="main-content">
+
+  </main>
+
+  <script src="script.js/sidebar.js"></script>
+
+</body>
+</html>

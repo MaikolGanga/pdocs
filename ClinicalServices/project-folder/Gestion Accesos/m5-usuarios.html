@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios Registrados</title>
+
+  <!-- Vinculamos Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* Estilos generales de la página */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: start;
+    }
+
+    .header strong {
+      color: #007bff;
+      font-size: 20px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .division {
+      border-bottom: 2px solid #ccc;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    /* Estilos generales de la tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 12px;
+      table-layout: auto; /* Permite que las columnas se ajusten según el contenido */
+    }
+
+    /* Añadimos contenedor con desbordamiento para permitir el desplazamiento */
+    .table-container {
+      width: 100%;
+      overflow-x: auto; /* Barra de desplazamiento horizontal cuando sea necesario */
+      margin-top: 20px; /* Espacio superior para la tabla */
+    }
+
+    /* Estilo del encabezado de la tabla */
+    table th,
+    table td {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    /* Estilo de las celdas de la tabla */
+    table th {
+      background-color: #ebebeb;
+      color: rgb(0, 0, 0);
+    }
+
+    table td {
+      background-color: #f9f9f9;
+    }
+
+    /* Estilo para pantallas más pequeñas */
+    @media (max-width: 768px) {
+      table, th, td {
+        font-size: 12px;
+      }
+
+      table th, table td {
+        padding: 6px;
+      }
+
+      /* En pantallas pequeñas, cambiar la disposición de las columnas */
+      .table-container {
+        overflow-x: auto;
+      }
+
+      table th, table td {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+
+      table th {
+        background-color: #f2f2f2;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Para pantallas aún más pequeñas */
+      table th, table td {
+        padding: 4px;
+      }
+
+      table th {
+        font-size: 11px;
+      }
+
+      table td {
+        font-size: 10px;
+      }
+    }
+
+    /* Estilos para los controles de paginación */
+    .pagination-controls {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .pagination-btn {
+      padding: 5px 15px;
+      margin: 0 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .pagination-btn:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+  </style>
+
+</head>
+<body>
+
+  <div class="container mt-5">
+    <div class="header">
+      <h2>Usuarios Registrados</h2>
+    </div>
+
+    <div class="division"></div>
+
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nombres</th>
+            <th>Apellido</th>
+            <th>Sexo</th>
+            <th>Correo</th>
+            <th>Usuario</th>
+            <th>Cargos</th>
+          </tr>
+        </thead>
+        <tbody id="tablaUsuarios">
+          <!-- Los usuarios se agregarán aquí -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Controles de Paginación -->
+    <div id="pagination-controls" class="pagination-controls">
+      <button id="prevPage" class="pagination-btn" disabled>Anterior</button>
+      <span id="pageNumber">Página 1</span>
+      <button id="nextPage" class="pagination-btn">Siguiente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7mj04k2OC2NSimCdubUIlAa53Ovp9x6I",
+      authDomain: "clinicalservices-acd5b.firebaseapp.com",
+      projectId: "clinicalservices-acd5b",
+      storageBucket: "clinicalservices-acd5b.firebasestorage.app",
+      messagingSenderId: "1016986943641",
+      appId: "1:1016986943641:web:75b5e0bfc5671961b0f808",
+      measurementId: "G-RY531V66CW"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Paginación
+    let currentPage = 1;
+    const usersPerPage = 5;
+    let allUsers = [];
+
+    // Referencias DOM
+    const tablaUsuarios = document.getElementById('tablaUsuarios');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    const pageNumber = document.getElementById('pageNumber');
+
+    // Función para cargar los usuarios
+    async function loadUsers(page) {
+      // Limpiamos la tabla
+      tablaUsuarios.innerHTML = '';
+
+      // Calculamos el índice de inicio y fin de la página actual
+      const startIndex = (page - 1) * usersPerPage;
+      const endIndex = startIndex + usersPerPage;
+
+      // Insertamos los usuarios correspondientes a la página actual
+      for (let i = startIndex; i < endIndex && i < allUsers.length; i++) {
+        const user = allUsers[i];
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.nombres}</td>
+          <td>${user.apellido}</td>
+          <td>${user.sexo}</td>
+          <td>${user.correo}</td>
+          <td>${user.usuario}</td>
+          <td>${user.cargos}</td>
+        `;
+        tablaUsuarios.appendChild(row);
+      }
+
+      // Actualizamos la paginación
+      pageNumber.textContent = `Página ${page}`;
+      prevPage.disabled = page === 1;
+      nextPage.disabled = page === Math.ceil(allUsers.length / usersPerPage);
+    }
+
+    // Función para obtener usuarios de Firestore
+    async function fetchUsersFromFirestore() {
+      const querySnapshot = await getDocs(collection(db, "usuarios"));
+      querySnapshot.forEach(doc => {
+        allUsers.push(doc.data());
+      });
+      loadUsers(currentPage); // Cargar la primera página con los usuarios obtenidos
+    }
+
+    // Eventos de los botones de paginación
+    prevPage.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadUsers(currentPage);
+      }
+    });
+
+    nextPage.addEventListener('click', () => {
+      if (currentPage < Math.ceil(allUsers.length / usersPerPage)) {
+        currentPage++;
+        loadUsers(currentPage);
+      }
+    });
+
+    // Obtener usuarios de Firestore cuando la página cargue
+    fetchUsersFromFirestore();
+  </script>
+
+</body>
+</html>
